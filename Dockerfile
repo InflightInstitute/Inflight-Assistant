@@ -1,9 +1,10 @@
 # Use the official Python image as the base image
 FROM python:3.11
 
-# Install system dependencies and eSpeak-ng for pyttsx3
+# Install system dependencies and eSpeak-ng
 RUN apt-get update && apt-get install -y \
     espeak-ng \
+    libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
@@ -12,14 +13,11 @@ WORKDIR /usr/src/app
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
 
-# Install Python dependencies
+# Install Python dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make sure the start script is executable
-RUN chmod +x start.sh
-
-# Expose the port your app runs on
+# Expose the port the app will run on
 EXPOSE 8080
 
-# Run the app using Gunicorn
-CMD ["./start.sh"]
+# Run the app using gunicorn
+CMD ["gunicorn", "-w", "4", "app:app"]
