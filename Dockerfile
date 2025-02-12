@@ -24,4 +24,3 @@ EXPOSE 8080
 
 # Run the app using gunicorn
 CMD ["gunicorn", "-w", "4", "app:app"]
-RUN echo "Checking if eSpeak-ng is installed..." && which espeak-ng && espeak-ng --version
