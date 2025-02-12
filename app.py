@@ -56,13 +56,19 @@ def voice_search():
         print("Listening...")
         audio = recognizer.listen(source)
     try:
+        # Try recognizing the speech
         query = recognizer.recognize_google(audio)
         print(f"Recognized query: {query}")
+        
+        # Search for the query in the manual
         results = search_manual(query)
         speak("I found the following results: " + ", ".join(results))  # Read out results
         return jsonify({"results": results})
     except Exception as e:
-        return jsonify({"error": "Could not recognize speech."})
+        # Return more detailed error information
+        print(f"Error during speech recognition: {str(e)}")
+        return jsonify({"error": f"Could not recognize speech. Error: {str(e)}"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
