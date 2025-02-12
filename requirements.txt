@@ -3,3 +3,5 @@ openai
 gunicorn
 pyttsx3
 SpeechRecognition
+gTTS==2.2.4
+
