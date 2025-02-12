@@ -1,13 +1,13 @@
 # Use the official Python image as the base image
 FROM python:3.11
 
-# Install dependencies and ensure that espeak-ng is installed properly
+# Install system dependencies (for espeak-ng and other dependencies)
 RUN apt-get update && apt-get install -y \
     espeak-ng \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
 # Copy the current directory contents into the container at /usr/src/app
