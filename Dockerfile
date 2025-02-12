@@ -14,5 +14,5 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the app
+# Run the app using Gunicorn
 CMD ["gunicorn", "-w", "4", "app:app"]
