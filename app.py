@@ -1,17 +1,10 @@
 from flask import Flask, request, jsonify
 import re
-import pyttsx3
+from gtts import gTTS  # Google Text-to-Speech
 from speech_recognition import Recognizer, Microphone
+import os
 
 app = Flask(__name__)
-
-# Initialize pyttsx3 text-to-speech engine
-engine = pyttsx3.init()
-
-def speak(text):
-    """Uses pyttsx3 to speak the provided text."""
-    engine.say(text)
-    engine.runAndWait()
 
 # Segmented manual sections
 manual_sections = {
@@ -21,6 +14,13 @@ manual_sections = {
     "Passenger Management": "Handling passenger issues requires...",
     "Aircraft Equipment": "Flight Attendant must be aware of aircraft safety equipment locations..."
 }
+
+# Function to speak using Google Text-to-Speech (gTTS)
+def speak(text):
+    """Converts text to speech using gTTS (Google Text-to-Speech)."""
+    tts = gTTS(text=text, lang='en')
+    tts.save("response.mp3")
+    os.system("mpg321 response.mp3")  # Play the generated speech
 
 # Keyword search function
 def search_manual(query):
@@ -45,7 +45,7 @@ def search():
     query = request.args.get('query', '')
     results = search_manual(query)
     response_text = " ".join(results)
-    speak(response_text)  # Read out the response using pyttsx3
+    speak(response_text)  # Read out the response using gTTS
     return jsonify({"results": results})
 
 @app.route('/voice-search', methods=['GET'])
