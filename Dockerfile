@@ -1,10 +1,9 @@
 # Use the official Python image as the base image
 FROM python:3.11
 
-# Install system dependencies (for espeak-ng and other dependencies)
+# Install system dependencies for espeak-ng and other dependencies
 RUN apt-get update && apt-get install -y \
     espeak-ng \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
@@ -16,8 +15,8 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port the app will run on
+# Expose the port your app runs on
 EXPOSE 8080
 
-# Run the app using Gunicorn
+# Run the app with gunicorn (ensure it's running on port 8080)
 CMD ["gunicorn", "-w", "4", "app:app"]
