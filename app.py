@@ -1,16 +1,16 @@
 from flask import Flask, request, jsonify
 import re
-import pyttsx3
-from speech_recognition import Recognizer, Microphone
+import subprocess
+import speech_recognition as sr
 
 app = Flask(__name__)
 
-# Initialize text-to-speech engine
-engine = pyttsx3.init()
-
+# Function to use macOS built-in speech synthesis (say command)
 def speak(text):
-    engine.say(text)
-    engine.runAndWait()
+    try:
+        subprocess.run(['say', text], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error with speech synthesis: {e}")
 
 # Segmented manual sections
 manual_sections = {
@@ -37,18 +37,19 @@ def search():
     query = request.args.get('query', '')
     results = search_manual(query)
     response_text = " ".join(results)
-    speak(response_text)  # Read out the response
+    speak(response_text)  # Read out the response using macOS's say command
     return jsonify({"results": results})
 
 @app.route('/voice-search', methods=['GET'])
 def voice_search():
-    recognizer = Recognizer()
-    with Microphone() as source:
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
         print("Listening...")
         audio = recognizer.listen(source)
     try:
         query = recognizer.recognize_google(audio)
-        return search_manual(query)
+        results = search_manual(query)
+        return jsonify({"results": results})
     except Exception as e:
         return jsonify({"error": "Could not recognize speech."})
 
