@@ -1,7 +1,7 @@
 # Use the official Python image as the base image
 FROM python:3.11
 
-# Install system dependencies for eSpeak-ng
+# Install system dependencies and eSpeak-ng for pyttsx3
 RUN apt-get update && apt-get install -y \
     espeak-ng \
     && rm -rf /var/lib/apt/lists/*
@@ -21,5 +21,5 @@ RUN chmod +x start.sh
 # Expose the port your app runs on
 EXPOSE 8080
 
-# Run the custom start script
+# Run the app using Gunicorn
 CMD ["./start.sh"]
