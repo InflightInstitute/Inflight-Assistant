@@ -1,16 +1,21 @@
 # Use the official Python image as the base image
 FROM python:3.11
 
-# Install system dependencies and eSpeak-ng from source
+# Install system dependencies and other essential tools
 RUN apt-get update && apt-get install -y \
     build-essential \
     espeak-ng \
-    libsndfile1 \
     git \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Check if espeak-ng is installed correctly
+# Install eSpeak-ng from the source
+RUN git clone https://github.com/espeak-ng/espeak-ng.git /opt/espeak-ng && \
+    cd /opt/espeak-ng && \
+    make && \
+    make install
+
+# Check if eSpeak-ng is installed correctly
 RUN echo "Checking if eSpeak-ng is installed..." && which espeak-ng && espeak-ng --version
 
 # Set the working directory in the container
