@@ -1,19 +1,17 @@
-@app.route('/')
-def home():
-    return "Welcome to Inflight Assistant!"
 from flask import Flask, request, jsonify
 import re
-import subprocess
-import speech_recognition as sr
+import pyttsx3
+from speech_recognition import Recognizer, Microphone
 
 app = Flask(__name__)
 
-# Function to use macOS built-in speech synthesis (say command)
+# Initialize pyttsx3 text-to-speech engine
+engine = pyttsx3.init()
+
 def speak(text):
-    try:
-        subprocess.run(['say', text], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error with speech synthesis: {e}")
+    """Uses pyttsx3 to speak the provided text."""
+    engine.say(text)
+    engine.runAndWait()
 
 # Segmented manual sections
 manual_sections = {
@@ -26,6 +24,7 @@ manual_sections = {
 
 # Keyword search function
 def search_manual(query):
+    """Searches the manual for the given query and returns matching sections."""
     query = query.lower()
     results = []
     
@@ -35,23 +34,32 @@ def search_manual(query):
     
     return results if results else ["No relevant information found."]
 
+@app.route('/')
+def home():
+    """Root route to avoid 404 error."""
+    return "Welcome to Inflight Assistant!"
+
 @app.route('/search', methods=['GET'])
 def search():
+    """Search route to process search queries."""
     query = request.args.get('query', '')
     results = search_manual(query)
     response_text = " ".join(results)
-    speak(response_text)  # Read out the response using macOS's say command
+    speak(response_text)  # Read out the response using pyttsx3
     return jsonify({"results": results})
 
 @app.route('/voice-search', methods=['GET'])
 def voice_search():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
+    """Voice search route to handle speech recognition."""
+    recognizer = Recognizer()
+    with Microphone() as source:
         print("Listening...")
         audio = recognizer.listen(source)
     try:
         query = recognizer.recognize_google(audio)
+        print(f"Recognized query: {query}")
         results = search_manual(query)
+        speak("I found the following results: " + ", ".join(results))  # Read out results
         return jsonify({"results": results})
     except Exception as e:
         return jsonify({"error": "Could not recognize speech."})
