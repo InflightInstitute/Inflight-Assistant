@@ -4,4 +4,5 @@ gunicorn
 pyttsx3
 SpeechRecognition
 gTTS==2.2.4
+pyaudio==0.2.11
 
