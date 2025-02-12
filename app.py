@@ -1,3 +1,6 @@
+@app.route('/')
+def home():
+    return "Welcome to Inflight Assistant!"
 from flask import Flask, request, jsonify
 import re
 import subprocess
