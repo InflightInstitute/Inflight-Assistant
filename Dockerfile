@@ -1,23 +1,22 @@
-# Use the official Python image as the base image
-FROM python:3.11
+# Use an official Debian-based image to have full control over system-level dependencies
+FROM debian:bullseye-slim
 
-# Install system dependencies for eSpeak-ng
+# Install Python 3, pip, and system dependencies (eSpeak-ng)
 RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
     espeak-ng \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Add debugging for system installation
-RUN echo "Checking for eSpeak-ng installation..." && espeak-ng --version
+# Install the required Python packages
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy the current directory contents into the container at /usr/src/app
+# Copy the current directory contents into the container
 COPY . .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose the port your app runs on
 EXPOSE 8080
