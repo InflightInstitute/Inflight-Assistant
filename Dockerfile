@@ -7,7 +7,10 @@ RUN apt-get update && apt-get install -y \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory in the container
+# Add debugging for system installation
+RUN echo "Checking for eSpeak-ng installation..." && espeak-ng --version
+
+# Set the working directory
 WORKDIR /usr/src/app
 
 # Copy the current directory contents into the container at /usr/src/app
@@ -16,8 +19,8 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port the app will run on
+# Expose the port your app runs on
 EXPOSE 8080
 
-# Add a startup script to ensure eSpeak-ng is initialized correctly
-CMD ["sh", "start.sh"]
+# Run the app using gunicorn
+CMD ["gunicorn", "-w", "4", "app:app"]
