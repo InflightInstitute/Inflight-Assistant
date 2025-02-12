@@ -2,4 +2,4 @@ flask
 openai
 gunicorn
 pyttsx3
-speech_recognition
+SpeechRecognition
