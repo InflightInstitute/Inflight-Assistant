@@ -1,20 +1,16 @@
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template, jsonify
+import pyttsx3
+import speech_recognition as sr
 import re
-from gtts import gTTS  # Google Text-to-Speech
-from speech_recognition import Recognizer, Microphone
-import os
 
 app = Flask(__name__)
+
+# Initialize text-to-speech engine
+engine = pyttsx3.init()
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
 
 # Segmented manual sections
 manual_sections = {
@@ -25,16 +21,8 @@ manual_sections = {
     "Aircraft Equipment": "Flight Attendant must be aware of aircraft safety equipment locations..."
 }
 
-# Function to speak using Google Text-to-Speech (gTTS)
-def speak(text):
-    """Converts text to speech using gTTS (Google Text-to-Speech)."""
-    tts = gTTS(text=text, lang='en')
-    tts.save("response.mp3")
-    os.system("mpg321 response.mp3")  # Play the generated speech
-
 # Keyword search function
 def search_manual(query):
-    """Searches the manual for the given query and returns matching sections."""
     query = query.lower()
     results = []
     
@@ -45,40 +33,29 @@ def search_manual(query):
     return results if results else ["No relevant information found."]
 
 @app.route('/')
-def home():
-    """Root route to avoid 404 error."""
-    return "Welcome to Inflight Assistant!"
+def index():
+    return render_template('index.html')
 
 @app.route('/search', methods=['GET'])
 def search():
-    """Search route to process search queries."""
     query = request.args.get('query', '')
     results = search_manual(query)
     response_text = " ".join(results)
-    speak(response_text)  # Read out the response using gTTS
+    speak(response_text)  # Read out the response
     return jsonify({"results": results})
 
 @app.route('/voice-search', methods=['GET'])
 def voice_search():
-    """Voice search route to handle speech recognition."""
-    recognizer = Recognizer()
-    with Microphone() as source:
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
         print("Listening...")
         audio = recognizer.listen(source)
     try:
-        # Try recognizing the speech
         query = recognizer.recognize_google(audio)
-        print(f"Recognized query: {query}")
-        
-        # Search for the query in the manual
         results = search_manual(query)
-        speak("I found the following results: " + ", ".join(results))  # Read out results
         return jsonify({"results": results})
     except Exception as e:
-        # Return more detailed error information
-        print(f"Error during speech recognition: {str(e)}")
-        return jsonify({"error": f"Could not recognize speech. Error: {str(e)}"})
-
+        return jsonify({"error": "Could not recognize speech."})
 
 if __name__ == '__main__':
     app.run(debug=True)
