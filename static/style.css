@@ -1,18 +1,29 @@
-
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
+    margin: 20px;
+    padding: 10px;
 }
 
 h1 {
-    color: #333;
-    text-align: center;
-    margin-top: 20px;
+    color: #4CAF50;
 }
 
-p {
-    text-align: center;
-    font-size: 18px;
+form {
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    padding: 5px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#results {
+    margin-top: 20px;
+    background-color: #f0f0f0;
+    padding: 10px;
 }
