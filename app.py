@@ -32,6 +32,10 @@ def search_manual(query):
     
     return results if results else ["No relevant information found."]
 
+@app.route('/')
+def home():
+    return "Welcome to Inflight Assistant!"  # Welcome message
+
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '')
