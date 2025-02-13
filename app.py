@@ -1,16 +1,16 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 import re
-import os
-from gtts import gTTS
+import pyttsx3
 import speech_recognition as sr
 
 app = Flask(__name__)
 
-# Function to speak text using gTTS
+# Initialize text-to-speech engine
+engine = pyttsx3.init()
+
 def speak(text):
-    tts = gTTS(text=text, lang='en')
-    tts.save("output.mp3")
-    os.system("mpg321 output.mp3")  # If 'mpg321' is not available, you can replace it with other audio players like 'afplay' on macOS
+    engine.say(text)
+    engine.runAndWait()
 
 # Segmented manual sections
 manual_sections = {
@@ -21,27 +21,28 @@ manual_sections = {
     "Aircraft Equipment": "Flight Attendant must be aware of aircraft safety equipment locations..."
 }
 
-# Keyword search function
+# Keyword search function with more robust search
 def search_manual(query):
-    query = query.lower()
+    query = query.lower()  # Make sure everything is lowercase for comparison
     results = []
     
     for section, content in manual_sections.items():
-        if re.search(query, content, re.IGNORECASE):
+        # Case-insensitive search and improved substring match
+        if query in content.lower():
             results.append(f"**{section}:** {content[:300]}...")  # Return snippet
     
     return results if results else ["No relevant information found."]
 
 @app.route('/')
-def home():
-    return render_template('index.html')  # Render the index.html template
+def index():
+    return "Welcome to Inflight Assistant!"
 
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '')
     results = search_manual(query)
     response_text = " ".join(results)
-    speak(response_text)  # Read out the response
+    speak(response_text)  # Read out the response using macOS's say command
     return jsonify({"results": results})
 
 @app.route('/voice-search', methods=['GET'])
@@ -51,10 +52,13 @@ def voice_search():
         print("Listening...")
         audio = recognizer.listen(source)
     try:
+        # Convert audio to text
         query = recognizer.recognize_google(audio)
-        results = search_manual(query)
-        return jsonify({"query": query, "results": results})
+        print(f"Query: {query}")  # For debugging purposes
+        results = search_manual(query)  # Pass query to search function
+        return jsonify({"query": query, "results": results})  # Return results
     except Exception as e:
+        print(f"Error: {e}")  # For debugging purposes
         return jsonify({"error": "Could not recognize speech."})
 
 if __name__ == '__main__':
