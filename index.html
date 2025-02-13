@@ -7,8 +7,17 @@
 </head>
 <body>
     <h1>Welcome to Inflight Assistant!</h1>
-    <button onclick="speak('Hello, welcome to Inflight Assistant!')">Speak</button>
 
-    <script src="script.js"></script>
+    <!-- Search form -->
+    <form action="/search" method="get">
+        <label for="query">Search the manual:</label>
+        <input type="text" id="query" name="query" placeholder="Enter your search query">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Voice search button -->
+    <form action="/voice-search" method="get">
+        <button type="submit">Voice Search</button>
+    </form>
 </body>
 </html>
