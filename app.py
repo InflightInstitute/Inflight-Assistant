@@ -1,16 +1,16 @@
-from flask import Flask, request, render_template, jsonify
-import pyttsx3
-import speech_recognition as sr
+from flask import Flask, request, jsonify
 import re
+import os
+from gtts import gTTS
+import speech_recognition as sr
 
 app = Flask(__name__)
 
-# Initialize text-to-speech engine
-engine = pyttsx3.init()
-
+# Function to speak text using gTTS
 def speak(text):
-    engine.say(text)
-    engine.runAndWait()
+    tts = gTTS(text=text, lang='en')
+    tts.save("output.mp3")
+    os.system("mpg321 output.mp3")  # If 'mpg321' is not available, you can replace it with other audio players like 'afplay' on macOS
 
 # Segmented manual sections
 manual_sections = {
@@ -32,10 +32,6 @@ def search_manual(query):
     
     return results if results else ["No relevant information found."]
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '')
@@ -53,7 +49,7 @@ def voice_search():
     try:
         query = recognizer.recognize_google(audio)
         results = search_manual(query)
-        return jsonify({"results": results})
+        return jsonify({"query": query, "results": results})
     except Exception as e:
         return jsonify({"error": "Could not recognize speech."})
 
