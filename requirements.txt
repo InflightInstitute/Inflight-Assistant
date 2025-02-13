@@ -1,6 +1,6 @@
-gTTS==2.2.4
 flask==3.1.0
 openai==1.62.0
 gunicorn==23.0.0
 pyttsx3==2.98
 SpeechRecognition==3.14.1
+gTTS==2.2.4
