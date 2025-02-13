@@ -1,16 +1,16 @@
 from flask import Flask, request, jsonify
 import re
-import pyttsx3
+from gtts import gTTS
+import os
 import speech_recognition as sr
 
 app = Flask(__name__)
 
-# Initialize text-to-speech engine
-engine = pyttsx3.init()
-
+# Function to generate speech and save it as an audio file
 def speak(text):
-    engine.say(text)
-    engine.runAndWait()
+    tts = gTTS(text)
+    tts.save("response.mp3")
+    os.system("mpg321 response.mp3")  # Uses mpg321 to play the saved audio file
 
 # Segmented manual sections
 manual_sections = {
@@ -42,7 +42,7 @@ def search():
     query = request.args.get('query', '')
     results = search_manual(query)
     response_text = " ".join(results)
-    speak(response_text)  # Read out the response using macOS's say command
+    speak(response_text)  # Read out the response using Google TTS
     return jsonify({"results": results})
 
 @app.route('/voice-search', methods=['GET'])
