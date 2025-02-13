@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import re
 import os
 from gtts import gTTS
@@ -34,7 +34,7 @@ def search_manual(query):
 
 @app.route('/')
 def home():
-    return "Welcome to Inflight Assistant!"  # Welcome message
+    return render_template('index.html')  # Render the index.html template
 
 @app.route('/search', methods=['GET'])
 def search():
