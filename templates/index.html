@@ -4,12 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inflight Assistant</title>
-    <!-- Link to the CSS file inside the static folder -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>Welcome to Inflight Assistant</h1>
-    <p>Use the search bar to find manual information.</p>
+    <form action="/search" method="get">
+        <label for="query">Search Manual:</label>
+        <input type="text" id="query" name="query" placeholder="Enter your search query">
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Voice Search</h2>
+    <button onclick="startVoiceSearch()">Start Voice Search</button>
+
+    <div id="results"></div>
+
+    <script>
+        function startVoiceSearch() {
+            fetch('/voice-search')
+            .then(response => response.json())
+            .then(data => {
+                let results = data.results.join('<br>');
+                document.getElementById('results').innerHTML = results;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>
-
