@@ -1,26 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inflight Assistant</title>
+  <meta charset="UTF-8">
+  <title>Inflight Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { padding: 10px; font-size: 16px; }
+    #results { margin-top: 20px; }
+  </style>
 </head>
 <body>
-    <h1>Welcome to Inflight Assistant!</h1>
+  <h1>Inflight Assistant</h1>
+  <p>Type your question below:</p>
+  <input type="text" id="queryInput" placeholder="Enter your question here" size="50">
+  <button onclick="search()">Search</button>
+  <div id="results"></div>
 
-    <!-- Search Form -->
-    <form action="/search" method="get">
-        <label for="query">Search the Manual:</label><br><br>
-        <input type="text" id="query" name="query" placeholder="Enter your query here" required>
-        <button type="submit">Search</button>
-    </form>
-
-    <!-- Voice Search Button -->
-    <br><br>
-    <a href="/voice-search">
-        <button type="button">Voice Search</button>
-    </a>
-
-    <p><strong>Note:</strong> You can type a query in the search box or use the voice search button.</p>
+  <script>
+    function search() {
+      const query = document.getElementById('queryInput').value;
+      if (!query) {
+        alert("Please enter a query!");
+        return;
+      }
+      fetch('/search?query=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+          const resultsDiv = document.getElementById('results');
+          resultsDiv.innerHTML = '';
+          if (data.results && data.results.length > 0) {
+            data.results.forEach(result => {
+              const p = document.createElement('p');
+              p.textContent = result;
+              resultsDiv.appendChild(p);
+            });
+          } else {
+            resultsDiv.innerHTML = '<p>No results found.</p>';
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+  </script>
 </body>
 </html>
