@@ -20,10 +20,10 @@ def search_manual(query):
             # Return a snippet of the content (first 300 characters) for that section
             results.append(f"{section}: {content[:300]}...")
     return results if results else ["No relevant information found."]
-
 @app.route('/')
 def index():
-    return "Welcome to Inflight Assistant! Use the /search endpoint with a query parameter."
+    return render_template('index.html')
+
 
 @app.route('/search', methods=['GET'])
 def search():
