@@ -1,36 +1,43 @@
 from flask import Flask, request, jsonify, render_template
+from fuzzywuzzy import fuzz
+import os
 
 app = Flask(__name__)
 
-# Define manual sections with sample text for each
-manual_sections = {
-    "Emergency Procedures": "Emergency cabin preparation demonstrations will be performed...",
-    "Safety Demonstrations": "Pre Take Off Safety Demonstration procedures include...",
-    "Cabin Crew Duties": "Flight Attendant execution of duties involves...",
-    "Passenger Management": "Handling passenger issues requires...",
-    "Aircraft Equipment": "Flight Attendant must be aware of aircraft safety equipment locations..."
-}
+# Load the manual text from manual.txt
+with open("manual.txt", "r", encoding="utf-8") as f:
+    manual_text = f.read()
 
-# Function to search the manual based on a query
+# Split the manual into paragraphs.
+# We assume paragraphs are separated by two newline characters.
+manual_paragraphs = manual_text.split("\n\n")
+
+# Function to search the manual using fuzzy matching
 def search_manual(query):
-    query = query.lower()  # Convert query to lowercase for case-insensitive matching
-    results = []
-    for section, content in manual_sections.items():
-        if query in content.lower():
-            # Return a snippet of the content (first 300 characters) for that section
-            results.append(f"{section}: {content[:300]}...")
-    return results if results else ["No relevant information found."]
+    best_match = None
+    best_score = 0
+    # Iterate over each paragraph and compute a matching score
+    for paragraph in manual_paragraphs:
+        score = fuzz.partial_ratio(query.lower(), paragraph.lower())
+        if score > best_score:
+            best_score = score
+            best_match = paragraph
+    # Set a threshold for a "good" match (adjust threshold as needed)
+    if best_score < 50:
+        return ["No relevant information found."]
+    else:
+        return [best_match]
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
 @app.route('/search', methods=['GET'])
 def search():
-    # Get the 'query' parameter from the URL, e.g., /search?query=emergency
     query = request.args.get('query', '')
     results = search_manual(query)
     return jsonify({"results": results})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
