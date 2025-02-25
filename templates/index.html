@@ -5,15 +5,16 @@
   <title>Inflight Assistant</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    input, button { padding: 10px; font-size: 16px; }
+    input, button { padding: 10px; font-size: 16px; margin: 5px; }
     #results { margin-top: 20px; }
   </style>
 </head>
 <body>
   <h1>Inflight Assistant</h1>
-  <p>Type your question below:</p>
+  <p>Type your question or use voice input:</p>
   <input type="text" id="queryInput" placeholder="Enter your question here" size="50">
   <button onclick="search()">Search</button>
+  <button id="voiceSearchBtn" onclick="startVoiceSearch()">Voice Search</button>
   <div id="results"></div>
   <button id="speakBtn" onclick="speakResults()" style="display:none;">Speak Answer</button>
   
@@ -56,6 +57,34 @@
         const utterance = new SpeechSynthesisUtterance(text);
         window.speechSynthesis.speak(utterance);
       }
+    }
+
+    // Function to start voice recognition using the Web Speech API
+    function startVoiceSearch() {
+      // Check for browser support
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("Sorry, your browser does not support speech recognition.");
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('queryInput').value = transcript;
+        // Automatically trigger the search after voice input
+        search();
+      };
+
+      recognition.onerror = function(event) {
+        console.error("Speech recognition error:", event.error);
+        alert("Speech recognition error: " + event.error);
+      };
+
+      recognition.start();
     }
   </script>
 </body>
