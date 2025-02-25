@@ -15,8 +15,10 @@
   <input type="text" id="queryInput" placeholder="Enter your question here" size="50">
   <button onclick="search()">Search</button>
   <div id="results"></div>
-
+  <button id="speakBtn" onclick="speakResults()" style="display:none;">Speak Answer</button>
+  
   <script>
+    // Function to send the query to the Flask /search endpoint
     function search() {
       const query = document.getElementById('queryInput').value;
       if (!query) {
@@ -28,17 +30,32 @@
         .then(data => {
           const resultsDiv = document.getElementById('results');
           resultsDiv.innerHTML = '';
+          let combinedText = '';
           if (data.results && data.results.length > 0) {
             data.results.forEach(result => {
               const p = document.createElement('p');
               p.textContent = result;
               resultsDiv.appendChild(p);
+              combinedText += result + ' ';
             });
+            // Show the Speak button and store the combined result text
+            document.getElementById('speakBtn').style.display = 'inline-block';
+            document.getElementById('speakBtn').setAttribute('data-text', combinedText);
           } else {
             resultsDiv.innerHTML = '<p>No results found.</p>';
+            document.getElementById('speakBtn').style.display = 'none';
           }
         })
         .catch(error => console.error('Error:', error));
+    }
+    
+    // Function to use the SpeechSynthesis API to speak the text
+    function speakResults() {
+      const text = document.getElementById('speakBtn').getAttribute('data-text');
+      if (text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+      }
     }
   </script>
 </body>
